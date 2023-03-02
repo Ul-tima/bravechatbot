@@ -1,0 +1,15 @@
+version: "2.0"
+
+rules:
+  - rule: welcome
+    steps:
+    - intent: start
+    - action: utter_start
+  - rule: respond to FAQs
+    steps:
+    - intent: faq
+    - action: utter_faq
+  - rule: respond to chitchat
+    steps:
+    - intent: chitchat
+    - action: utter_chitchat

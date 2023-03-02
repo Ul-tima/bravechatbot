@@ -1,0 +1,40 @@
+version: "2.0"
+
+nlu:
+
+- intent: start
+  examples: |
+    - start
+    - /start
+
+- intent: chitchat/greet
+  examples: |
+    - привіт
+    - доброго дня
+    - добрий ранок
+
+- intent: chitchat/goodbye
+  examples: |
+    - гарного дня
+    - до побачення
+    - бувай
+
+- intent: faq/need_help
+  examples: |
+    - мені потрібна допомога
+    - як залишити заявку на відновлення?
+    - ви можете мені допомогти?
+    - як отримати допомогу волонтерів?
+    - зможете розібрати завали?
+
+- intent: faq/donate
+  examples: |
+    - як задонатити
+    - хочу підтримати фінансово
+    - як задонатити кошти?
+    - є посилання на банку?
+
+#- intent: start
+#  examples: |
+#    - start
+#    - /start

@@ -1,0 +1,25 @@
+version: "2.0"
+
+intents:
+  - chitchat
+  - faq
+  - start
+
+responses:
+  utter_start:
+  - text: "Привіт! Я - твій сміливий чат-бот."
+  utter_chitchat/greet:
+  - text: "Привіт! Я - твій сміливий чат-бот."
+  utter_chitchat/goodbye:
+  - text: "Бувай."
+#!!! ADD LINK
+  utter_faq/need_help:
+    - custom:
+        text: "Якщо вам потрібна допомога у відбудові або підготовці до неї, надішліть будь ласка вашу заявку через [сайт](https://pidmoha.gov.ua/ua/task/create). Ми зконтактуємо з вами, якщо наша допомога буде релевантною."
+        parse_mode: markdown
+  utter_faq/donate:
+  - text: "Задонатити на проект (https://send.monobank.ua/jar/33np84nugz)."
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
