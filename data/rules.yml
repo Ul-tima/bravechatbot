@@ -5,6 +5,14 @@ rules:
     steps:
     - intent: start
     - action: utter_start
+  - rule: how to donate
+    steps:
+    - intent: donate
+    - action: utter_donate
+  - rule: ask help
+    steps:
+      - intent: need_help
+      - action: utter_need_help
   - rule: respond to FAQs
     steps:
     - intent: faq

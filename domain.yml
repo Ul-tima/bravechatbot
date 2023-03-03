@@ -4,21 +4,34 @@ intents:
   - chitchat
   - faq
   - start
+  - donate
+  - need_help
 
 responses:
   utter_start:
   - text: "Привіт! Я - твій сміливий чат-бот."
+    buttons:
+      - title: "Потрібна допомога"
+        payload: /need_help
+      - title: "Задонатити"
+        payload: /donate
   utter_chitchat/greet:
   - text: "Привіт! Я - твій сміливий чат-бот."
+    buttons:
+      - title: "Потрібна допомога"
+        payload: /need_help
+      - title: "Задонатити"
+        payload: /donate
   utter_chitchat/goodbye:
   - text: "Бувай."
-#!!! ADD LINK
-  utter_faq/need_help:
+  utter_need_help:
     - custom:
         text: "Якщо вам потрібна допомога у відбудові або підготовці до неї, надішліть будь ласка вашу заявку через [сайт](https://pidmoha.gov.ua/ua/task/create). Ми зконтактуємо з вами, якщо наша допомога буде релевантною."
         parse_mode: markdown
-  utter_faq/donate:
+  utter_donate:
   - text: "Задонатити на проект (https://send.monobank.ua/jar/33np84nugz)."
+  utter_faq/age:
+    - text: "З 16 років з умовою погодження батьків. З 14 років, якщо з вами буде відповідальна повнолітня особа."
 
 session_config:
   session_expiration_time: 60
