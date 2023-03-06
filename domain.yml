@@ -32,6 +32,13 @@ responses:
   - text: "Задонатити на проект (https://send.monobank.ua/jar/33np84nugz)."
   utter_faq/age:
     - text: "З 16 років з умовою погодження батьків. З 14 років, якщо з вами буде відповідальна повнолітня особа."
+  utter_ask_rephrase:
+    - text: "Вибачте, можете переформулювати ваше запитання?"
+  utter_default:
+    - text: "Вибачте, я не можу вам допомогти."
+
+actions:
+  - action_default_ask_affirmation
 
 session_config:
   session_expiration_time: 60

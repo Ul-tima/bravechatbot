@@ -23,6 +23,8 @@ pipeline:
   - name: ResponseSelector
     epochs: 100
     retrieval_intent: chitchat
+  - name: FallbackClassifier
+    threshold: 0.7
 policies:
 # # No configuration for policies was provided. The following default policies were used to train your model.
 # # If you'd like to customize them, uncomment and adjust the policies.
