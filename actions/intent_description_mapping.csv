@@ -1,0 +1,16 @@
+intent,button,entities
+start,Початок,
+chitchat/greet,Привіт,
+chitchat/goodbye,Бувай,
+need_help,Потрібна допомога,
+donate,Задонатити,
+faq/age,Вікові обмеження,
+faq/location,Локації,
+faq/schedule,Графік,
+faq/transport,Транспорт,
+faq/charity,Благодійність,
+faq/announcement,Анонс,
+faq/join,Як стати волонтером,
+faq/same_location,Робота разом,
+faq/loc_contacts,Контакти координаторів,
+

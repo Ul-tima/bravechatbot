@@ -55,12 +55,16 @@ class ActionDefaultAskAffirmation(Action):
         # can distinguish between the different sub intents
         first_intent_names = [
             intent.get("name", "")
-            if intent.get("name", "") not in ["out_of_scope", "faq", "chitchat"]
+            if intent.get("name", "") not in ["faq", "chitchat"]
             else tracker.latest_message.get("response_selector")
             .get(intent.get("name", ""))
             .get("full_retrieval_intent")
             for intent in intent_ranking
         ]
+
+        if first_intent_names == ['nlu_fallback', None]:
+            dispatcher.utter_message(response='utter_default')
+            return []
 
         message_title = (
             "🤔 Ви мали на увазі... "
@@ -84,7 +88,7 @@ class ActionDefaultAskAffirmation(Action):
                     {"title": button_title, "payload": f"/{intent}{entities_json}"}
                 )
 
-        buttons.append({"title": "Something else", "payload": "/trigger_rephrase"})
+        buttons.append({"title": "Інше", "payload": "/trigger_rephrase"})
 
         dispatcher.utter_message(text=message_title, buttons=buttons)
 
