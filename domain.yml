@@ -1,8 +1,10 @@
 version: "3.1"
 
 intents:
-  - chitchat
-  - faq
+  - chitchat:
+      is_retrieval_intent: true
+  - faq:
+      is_retrieval_intent: true
   - start
   - donate
   - need_help
@@ -60,6 +62,7 @@ responses:
 
 actions:
   - action_default_ask_affirmation
+  - action_get_sender_id
 
 session_config:
   session_expiration_time: 60

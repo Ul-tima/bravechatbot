@@ -8,16 +8,17 @@
 # This is a simple example for a custom action which utters "Hello World!"
 
 import json
-
+import gspread
 from typing import Any, Text, Dict, List
+from oauth2client.service_account import ServiceAccountCredentials
 
-from rasa.core.actions.action import create_bot_utterance
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
-from rasa_sdk.events import  SlotSet, EventType
+from rasa_sdk.events import EventType
 
 INTENT_DESCRIPTION_MAPPING_PATH = "actions/intent_description_mapping.csv"
-
+SH_NAME = 'BraveBot'
+GS_CREDENTIAL_MAPPING_PATH = 'gs_credentials.json'
 
 class ActionDefaultAskAffirmation(Action):
 
@@ -110,37 +111,52 @@ class ActionDefaultAskAffirmation(Action):
 
         return button_title.format(**entities)
 
-    #
-    #
-    # class ActionHelloWorld(Action):
-    #
-    #     def name(self) -> Text:
-    #         return "action_hello_world"
-    #
-    #     def run(self, dispatcher: CollectingDispatcher,
-    #             tracker: Tracker,
-    #             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-    #
-    #         dispatcher.utter_message(text="Hello World!")
-    #
-    #         return []
+    class ActionGetSenderId(Action):
 
-    # class ActionTriggerResponseSelector(Action):
-    #     """Returns the chitchat utterance dependent on the intent"""
-    #
-    #     def name(self) -> Text:
-    #         return "action_trigger_response_selector"
-    #
-    #     def run(
-    #             self,
-    #             dispatcher: CollectingDispatcher,
-    #             tracker: Tracker,
-    #             domain: Dict[Text, Any],
-    #     ) -> List[EventType]:
-    #
-    #         retrieval_intent = tracker.get_slot("retrieval_intent")
-    #         if retrieval_intent:
-    #             dispatcher.utter_message(template=f"utter_{retrieval_intent}")
-    #         #return [SlotSet("retrieval_intent", retrieval_intent)]
-    #         return []
-    #
+        def name(self):
+            return "action_get_sender_id"
+
+        def __init__(self):
+            scope = ['https://spreadsheets.google.com/feeds',
+                     'https://www.googleapis.com/auth/spreadsheets',
+                     'https://www.googleapis.com/auth/drive.file',
+                     'https://www.googleapis.com/auth/drive']
+
+            # Reading Credentails from ServiceAccount Keys file
+            credentials = ServiceAccountCredentials.from_json_keyfile_name(GS_CREDENTIAL_MAPPING_PATH, scope)
+
+            # intitialize the authorization object
+            self.gc = gspread.authorize(credentials)
+
+        def run(self, dispatcher, tracker, domain):
+            input_data = tracker.latest_message
+            user_info = input_data["metadata"]["message"]["from"]
+            user_id = user_info.get("id")
+            user_first_name = user_info.get("first_name")
+            user_last_name = user_info.get("last_name")
+            user_tg_name = user_info.get("username")
+            user_mess = input_data['text']
+            intent = self.get_intent_name(tracker)
+            main_info = [user_id, user_first_name, user_last_name, user_tg_name, intent, user_mess]
+            print(main_info)
+            self.save_to_gs(main_info)
+
+        @staticmethod
+        def get_intent_name(tracker):
+            intent = tracker.latest_message["intent"]['name']
+
+            if intent not in ["faq", "chitchat"]:
+                first_intent_names = intent
+            else:
+                first_intent_names = tracker.latest_message["response_selector"][intent]['ranking'][0]['intent_response_key']
+
+            return first_intent_names
+
+        def save_to_gs(self, info):
+            sheet = self.gc.open(SH_NAME)
+            try:
+                sheet_info = sheet.get_worksheet(0)
+                sheet_info.append_row(info)
+            except:
+                print('Error Occurred')
+            return
