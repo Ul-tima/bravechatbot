@@ -5,24 +5,30 @@ rules:
     steps:
     - intent: start
     - action: utter_start
+    - action: action_get_sender_id
   - rule: how to donate
     steps:
     - intent: donate
     - action: utter_donate
+    - action: action_get_sender_id
   - rule: ask help
     steps:
-      - intent: need_help
-      - action: utter_need_help
+    - intent: need_help
+    - action: utter_need_help
+    - action: action_get_sender_id
   - rule: respond to FAQs
     steps:
     - intent: faq
     - action: utter_faq
+    - action: action_get_sender_id
   - rule: respond to chitchat
     steps:
     - intent: chitchat
     - action: utter_chitchat
+    - action: action_get_sender_id
   - rule: Implementation of the Two-Stage-Fallback
     steps:
       - intent: nlu_fallback
+      - action: action_get_sender_id
       - action: action_two_stage_fallback
       - active_loop: action_two_stage_fallback
