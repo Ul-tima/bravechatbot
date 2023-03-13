@@ -131,7 +131,10 @@ class ActionDefaultAskAffirmation(Action):
 
         def run(self, dispatcher, tracker, domain):
             input_data = tracker.latest_message
-            user_info = input_data["metadata"]["message"]["from"]
+            if "message" in input_data["metadata"].keys():
+                user_info = input_data["metadata"]["message"]["from"]
+            else:
+                user_info = input_data['metadata']['callback_query']['from']
             user_id = user_info.get("id")
             user_first_name = user_info.get("first_name")
             user_last_name = user_info.get("last_name")
