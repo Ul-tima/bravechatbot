@@ -62,36 +62,37 @@ class ActionDefaultAskAffirmation(Action):
             .get("full_retrieval_intent")
             for intent in intent_ranking
         ]
+        if "nlu_fallback" in first_intent_names:
+            first_intent_names.remove("nlu_fallback")
+        if len(first_intent_names) > 0:
 
-        if first_intent_names == ['nlu_fallback', None]:
+            message_title = (
+                "🤔 Ви мали на увазі... "
+            )
+
+            entities = tracker.latest_message.get("entities", [])
+            entities = {e["entity"]: e["value"] for e in entities}
+
+            entities_json = json.dumps(entities)
+
+            buttons = []
+            for intent in first_intent_names:
+                button_title = self.get_button_title(intent, entities)
+                if "/" in intent:
+                    # here we use the button title as the payload as well, because you
+                    # can't force a response selector sub intent, so we need NLU to parse
+                    # that correctly
+                    buttons.append({"title": button_title, "payload": button_title})
+                else:
+                    buttons.append(
+                        {"title": button_title, "payload": f"/{intent}{entities_json}"}
+                    )
+
+            buttons.append({"title": "Інше", "payload": "/out_of_scope"})
+
+            dispatcher.utter_message(text=message_title, buttons=buttons, button_type='vertical')
+        else:
             dispatcher.utter_message(response='utter_default')
-            return []
-
-        message_title = (
-            "🤔 Ви мали на увазі... "
-        )
-
-        entities = tracker.latest_message.get("entities", [])
-        entities = {e["entity"]: e["value"] for e in entities}
-
-        entities_json = json.dumps(entities)
-
-        buttons = []
-        for intent in first_intent_names:
-            button_title = self.get_button_title(intent, entities)
-            if "/" in intent:
-                # here we use the button title as the payload as well, because you
-                # can't force a response selector sub intent, so we need NLU to parse
-                # that correctly
-                buttons.append({"title": button_title, "payload": button_title})
-            else:
-                buttons.append(
-                    {"title": button_title, "payload": f"/{intent}{entities_json}"}
-                )
-
-        buttons.append({"title": "Інше", "payload": "/trigger_rephrase"})
-
-        dispatcher.utter_message(text=message_title, buttons=buttons)
 
         return []
 

@@ -8,6 +8,7 @@ intents:
   - start
   - donate
   - need_help
+  - out_of_scope
 
 responses:
   utter_start:
