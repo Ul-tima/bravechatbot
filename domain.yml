@@ -9,6 +9,26 @@ intents:
   - donate
   - need_help
   - out_of_scope
+  - affirm
+  - deny
+  - volunteer
+  - trigger_selector
+
+entities:
+  - is_agree
+  - rintent
+
+slots:
+  rintent:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+  is_agree:
+     type: bool
+     influence_conversation: true
+     mappings:
+     - type: custom
 
 responses:
   utter_start:
@@ -24,17 +44,25 @@ responses:
       - title: "Ні"
         payload: '/deny{{"is_agree":"False"}}'
   utter_chitchat/greet:
-  - text: "Привіт! Я - сміливий чат-бот."
+  - text: "Чим я можу вам допомогти?"
     button_type: vertical
     buttons:
       - title: "Потрібна допомога"
         payload: /need_help
       - title: "Задонатити"
         payload: /donate
-  utter_affirm:
-    - text: "Дякую {is_agree}."
-  utter_deny:
-    - text: "Добре. Я не зберігатиму ваші дані {is_agree}."
+      - title: "Хочу допомогти"
+        payload: /volunteer
+  utter_volunteer:
+    - text: "Можете написати ваше запитання або вибрати нижче"
+      button_type: vertical
+      buttons:
+        - title: "Як долучитись"
+          payload: '/trigger_selector{{"rintent":"faq/join"}}'
+        - title: "Маю ідею"
+          payload:  '/trigger_selector{{"rintent":"faq/announcement"}}'
+  utter_chitchat/goodbye:
+    - text: "Я був радий допомогти. Якщо вам ще щось знадобиться, я завжди поруч!"
   utter_need_help:
     - custom:
         text: "Якщо вам потрібна допомога у відбудові або підготовці до неї, надішліть будь ласка вашу заявку через [сайт](https://pidmoha.gov.ua/ua/task/create). Ми зконтактуємо з вами, якщо наша допомога буде релевантною."
@@ -85,6 +113,7 @@ actions:
   - action_get_sender_id
   - action_get_agreement
   - action_get_resp_agreement
+  - action_trigger_selector
 
 session_config:
   session_expiration_time: 60

@@ -112,24 +112,25 @@ class ActionDefaultAskAffirmation(Action):
 
         return button_title.format(**entities)
 
-    class ActionGetSenderId(Action):
+class ActionGetSenderId(Action):
 
-        def name(self):
-            return "action_get_sender_id"
+    def name(self):
+        return "action_get_sender_id"
 
-        def __init__(self):
-            scope = ['https://spreadsheets.google.com/feeds',
-                     'https://www.googleapis.com/auth/spreadsheets',
-                     'https://www.googleapis.com/auth/drive.file',
-                     'https://www.googleapis.com/auth/drive']
+    def __init__(self):
+        scope = ['https://spreadsheets.google.com/feeds',
+                 'https://www.googleapis.com/auth/spreadsheets',
+                 'https://www.googleapis.com/auth/drive.file',
+                 'https://www.googleapis.com/auth/drive']
 
-            # Reading Credentails from ServiceAccount Keys file
-            credentials = ServiceAccountCredentials.from_json_keyfile_name(GS_CREDENTIAL_MAPPING_PATH, scope)
+        # Reading Credentails from ServiceAccount Keys file
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(GS_CREDENTIAL_MAPPING_PATH, scope)
 
-            # intitialize the authorization object
-            self.gc = gspread.authorize(credentials)
+        # intitialize the authorization object
+        self.gc = gspread.authorize(credentials)
 
-        def run(self, dispatcher, tracker, domain):
+    def run(self, dispatcher, tracker, domain):
+        if tracker.get_slot('is_agree'):
             input_data = tracker.latest_message
             if "message" in input_data["metadata"].keys():
                 user_info = input_data["metadata"]["message"]["from"]
@@ -142,79 +143,69 @@ class ActionDefaultAskAffirmation(Action):
             user_mess = input_data['text']
             intent = self.get_intent_name(tracker)
             main_info = [user_id, user_first_name, user_last_name, user_tg_name, intent, user_mess]
-            print(main_info, tracker.get_slot('is_agree'))
+            print(main_info)
             self.save_to_gs(main_info)
 
-        @staticmethod
-        def get_intent_name(tracker):
-            intent = tracker.latest_message["intent"]['name']
+    @staticmethod
+    def get_intent_name(tracker):
+        intent = tracker.latest_message["intent"]['name']
 
-            if intent not in ["faq", "chitchat"]:
-                first_intent_names = intent
-            else:
-                first_intent_names = tracker.latest_message["response_selector"][intent]['ranking'][0]['intent_response_key']
+        if intent not in ["faq", "chitchat"]:
+            first_intent_names = intent
+        else:
+            first_intent_names = tracker.latest_message["response_selector"][intent]['ranking'][0]['intent_response_key']
 
-            return first_intent_names
+        return first_intent_names
 
-        def save_to_gs(self, info):
-            sheet = self.gc.open(SH_NAME)
-            try:
-                sheet_info = sheet.get_worksheet(0)
-                sheet_info.append_row(info)
-            except:
-                print('Error Occurred')
-            return
+    def save_to_gs(self, info):
+        sheet = self.gc.open(SH_NAME)
+        try:
+            sheet_info = sheet.get_worksheet(0)
+            sheet_info.append_row(info)
+        except:
+            print('Error Occurred')
+        return
 
-    class ActionGetRespAgreement(Action):
-        def name(self) -> Text:
-            return "action_get_resp_agreement"
+class ActionGetRespAgreement(Action):
+    def name(self) -> Text:
+        return "action_get_resp_agreement"
 
-        def run(self, dispatcher: CollectingDispatcher,
-                tracker: Tracker,
-                domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
 
-            input_data = tracker.latest_message
-            if "message" in input_data["metadata"].keys():
-                user_info = input_data["metadata"]["message"]["from"]
-            else:
-                user_info = input_data['metadata']['callback_query']['from']
+        if tracker.get_slot('is_agree') is None:
             intent = tracker.latest_message["intent"]['name']
 
             agree_value = None
             if intent =='affirm':
-                agree_value = 'True'
+                agree_value = True
+                message = 'Дякую.'
             elif intent =='deny':
-                agree_value = 'False'
-
-            agree = tracker.get_slot('is_agree')
-            print(user_info, agree, agree_value)
+                agree_value = False
+                message = 'Добре. Я не зберігатиму ваші дані.'
+            dispatcher.utter_message(text=message)
             return [SlotSet('is_agree', agree_value)]
+        else:
+            return []
 
-    class ActionAgreement(Action):
-        def name(self) -> Text:
-            return "action_get_agreement"
 
-        def run(self, dispatcher: CollectingDispatcher,
-                tracker: Tracker,
-                domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+class ActionTriggerResponseSelector(Action):
 
-           message = "Я погоджуюся на обробку моїх персональних даних та проінформований/на, що вони не будуть передаватися третім особам і будуть використовуватися тільки для координації волонтерської діяльності"
-           buttons = [
-                {"title": "Так", "payload": '/affirm{{"is_agree": "true"}}'},
-                {"title": "Hi", "payload": '/deny{{"is_agree": "false"}}'}
-            ]
-           dispatcher.utter_message(text=message, buttons=buttons)
+    def name(self) -> Text:
+        return "action_trigger_selector"
 
-           # if today13am < now < today18pm:
-           #     message = 'Sorry, we are offline.'
-           #     service = 'offline'
-           #     # service=tracker.get_slot('online')
-           # else:
-           #     message = 'We are open. How can I help you?'
-           #     service = 'online'
-           #     # service=tracker.get_slot('offline')
-           #
-           # dispatcher.utter_message(message)
-           # return []
-           #return [SlotSet("service_time", service)]
-           return []
+    def run(
+            self,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any],
+    ) -> List[EventType]:
+
+        rintent = tracker.get_slot("rintent")
+        rintent2 = tracker.latest_message['entities'][0]['value'] if tracker.latest_message['entities'][0]['entity'] == 'rintent' else None
+        value_set = rintent if rintent else rintent2
+        if value_set:
+            dispatcher.utter_message(response=f"utter_{value_set}")
+        #return [SlotSet("retrieval_intent", retrieval_intent)]
+        return []

@@ -9,4 +9,5 @@ stories:
   - or:
     - intent: affirm
     - intent: deny
-  #- action: action_get_resp_agreement
+  - action: action_get_resp_agreement
+  - action: utter_chitchat/greet

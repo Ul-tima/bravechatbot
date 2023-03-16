@@ -36,10 +36,14 @@ rules:
   - rule: Agree
     steps:
       - intent: affirm
-      - action: utter_affirm
       - action: action_get_resp_agreement
+      - action: utter_chitchat/greet
   - rule: Deny
     steps:
       - intent: deny
-      - action: utter_deny
       - action: action_get_resp_agreement
+      - action: utter_chitchat/greet
+  - rule: Trigger response selector from button payload
+    steps:
+      - intent: trigger_selector
+      - action: action_trigger_selector
