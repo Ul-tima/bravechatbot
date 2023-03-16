@@ -17,6 +17,11 @@ rules:
     - intent: need_help
     - action: utter_need_help
     - action: action_get_sender_id
+  - rule: volunteer
+    steps:
+      - intent: volunteer
+      - action: utter_volunteer
+      - action: action_get_sender_id
   - rule: respond to FAQs
     steps:
     - intent: faq
