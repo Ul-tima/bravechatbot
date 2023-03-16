@@ -12,13 +12,17 @@ intents:
 
 responses:
   utter_start:
-  - text: "Привіт! Я - сміливий чат-бот."
-    button_type: vertical
+  - text: |
+      Привіт! Я - сміливий чат-бот. 
+      Я можу відповісти на питання щодо отримання допомоги та волонтерської діяльності. 
+      Перед тим як розпочати будь ласка дайте згоду на обробку персональних даних.
+  utter_agreement:
+  - text: "Я погоджуюся на обробку моїх персональних даних та проінформований/на, що вони не будуть передаватися третім особам і будуть використовуватися тільки для координації волонтерської діяльності"
     buttons:
-      - title: "Потрібна допомога"
-        payload: /need_help
-      - title: "Задонатити"
-        payload: /donate
+      - title: "Так"
+        payload: '/affirm{{"is_agree":"True"}}'
+      - title: "Ні"
+        payload: '/deny{{"is_agree":"False"}}'
   utter_chitchat/greet:
   - text: "Привіт! Я - сміливий чат-бот."
     button_type: vertical
@@ -27,8 +31,10 @@ responses:
         payload: /need_help
       - title: "Задонатити"
         payload: /donate
-  utter_chitchat/goodbye:
-  - text: "Бувай."
+  utter_affirm:
+    - text: "Дякую {is_agree}."
+  utter_deny:
+    - text: "Добре. Я не зберігатиму ваші дані {is_agree}."
   utter_need_help:
     - custom:
         text: "Якщо вам потрібна допомога у відбудові або підготовці до неї, надішліть будь ласка вашу заявку через [сайт](https://pidmoha.gov.ua/ua/task/create). Ми зконтактуємо з вами, якщо наша допомога буде релевантною."
@@ -36,17 +42,22 @@ responses:
   utter_donate:
   - text: "Задонатити на проект (https://send.monobank.ua/jar/33np84nugz)."
   utter_faq/schedule:
-  - text: "Великі волонтерські заїзди відбуваються щовихідних. А менші заїзди відбуваються за запитом у будні. Усю інформацію про заїзди можна знайти у нас в телеграм-каналі та чаті."
+    - custom:
+        text: "Великі волонтерські заїзди відбуваються щовихідних. А менші заїзди відбуваються за запитом у будні. Усю інформацію про заїзди можна знайти у нас в [телеграм-каналі](https://t.me/smylivi) і [чаті](https://t.me/+_qTol8ws9EM0Mzli)."
+        parse_mode: markdown
   utter_faq/transport:
     - text: "У вихідні ми забезпечуємо транспорт до локацій волонтерства. У будні доїзд самостійний, але ми повністю констультуємо стосовно кращого маршруту. Деталі доїзду на волонтерство публікуються за день до волонтерства."
   utter_faq/charity:
   - text: "Звучить супер, розкажіть про свій запит нашій координаторці @alex_lucak в телеграмі."
   utter_faq/announcement:
   - text: "Звучить супер, розкажіть про свій запит нашій координаторці @alex_lucak в телеграмі."
-#!!!!!  Add links
   utter_faq/join:
   - custom:
-      text: "  Аби стати Сміливим волонтером, ви маєте підписатись на наш [телеграм канал](https://t.me/smylivi) і [чат](https://t.me/+_qTol8ws9EM0Mzli).\n\  Анонси вихідних волонтерств відбуваються у четвер, після чого публікується опитування, через яке можна зареєструватися на конкретний день волонтерства. Анонси будніх волонтерств відбувається за день-два до дня волонтерства.  \n\ Реєстрація так само - через опитування в телеграмі. Після реєстрації координатор надсилає вам деталі волонтерства в приватні повідомлення. \n \ ❗ Під час першої реєстрації на волонтерcтво важливо ознайомитися з [правилами безпеки](https://docs.google.com/document/d/1lXfkfKJ0fLiPZLm19qjCNY4dWfadeCbZ3skW3kt0d6k/edit) та заповнити цю [анкету](https://docs.google.com/forms/d/e/1FAIpQLSdM-2NQTXfU6_YqHT60c9uqRHuXCsFP32sZM6k0lMBMky4HPA/viewform)."
+      text: |
+        Аби стати Сміливим волонтером, ви маєте підписатись на наш [телеграм канал](https://t.me/smylivi) і [чат](https://t.me/+_qTol8ws9EM0Mzli).
+        Анонси вихідних волонтерств відбуваються у четвер, після чого публікується опитування, через яке можна зареєструватися на конкретний день волонтерства. Анонси будніх волонтерств відбувається за день-два до дня волонтерства.  
+        Реєстрація так само - через опитування в телеграмі. Після реєстрації координатор надсилає вам деталі волонтерства в приватні повідомлення. 
+        ❗ Під час першої реєстрації на волонтерcтво важливо ознайомитися з [правилами безпеки](https://docs.google.com/document/d/1lXfkfKJ0fLiPZLm19qjCNY4dWfadeCbZ3skW3kt0d6k/edit) та заповнити цю [анкету](https://docs.google.com/forms/d/e/1FAIpQLSdM-2NQTXfU6_YqHT60c9uqRHuXCsFP32sZM6k0lMBMky4HPA/viewform).
       parse_mode: markdown
   utter_faq/application:
    - custom:
@@ -72,7 +83,12 @@ responses:
 actions:
   - action_default_ask_affirmation
   - action_get_sender_id
+  - action_get_agreement
+  - action_get_resp_agreement
 
 session_config:
   session_expiration_time: 60
   carry_over_slots_to_new_session: true
+
+config:
+  store_entities_as_slots: true

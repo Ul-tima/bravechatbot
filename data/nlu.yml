@@ -7,17 +7,36 @@ nlu:
     - start
     - /start
 
+- intent: affirm
+  examples: |
+    - так
+    - згоден
+    - згодна
+    - добре
+
+- intent: deny
+  examples: |
+    - ні
+    - не згоден
+    - не згодна
+ 
+
 - intent: chitchat/greet
   examples: |
     - привіт
+    - вітаю
     - доброго дня
     - добрий ранок
+    - добрий вечір
 
 - intent: chitchat/goodbye
   examples: |
     - гарного дня
     - до побачення
     - бувай
+    - гарного вечора
+    - дякую
+    - спасибі
 
 - intent: need_help
   examples: |

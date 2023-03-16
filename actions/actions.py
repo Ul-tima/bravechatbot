@@ -14,11 +14,12 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
-from rasa_sdk.events import EventType
+from rasa_sdk.events import EventType, SlotSet
 
 INTENT_DESCRIPTION_MAPPING_PATH = "actions/intent_description_mapping.csv"
 SH_NAME = 'BraveBot'
 GS_CREDENTIAL_MAPPING_PATH = 'gs_credentials.json'
+
 
 class ActionDefaultAskAffirmation(Action):
 
@@ -49,7 +50,6 @@ class ActionDefaultAskAffirmation(Action):
                 intent_ranking = intent_ranking[:2]
             else:
                 intent_ranking = intent_ranking[:1]
-
         # for the intent name used to retrieve the button title, we either use
         # the name of the name of the "main" intent, or if it's an intent that triggers
         # the response selector, we use the full retrieval intent name so that we
@@ -142,7 +142,7 @@ class ActionDefaultAskAffirmation(Action):
             user_mess = input_data['text']
             intent = self.get_intent_name(tracker)
             main_info = [user_id, user_first_name, user_last_name, user_tg_name, intent, user_mess]
-            print(main_info)
+            print(main_info, tracker.get_slot('is_agree'))
             self.save_to_gs(main_info)
 
         @staticmethod
@@ -164,3 +164,57 @@ class ActionDefaultAskAffirmation(Action):
             except:
                 print('Error Occurred')
             return
+
+    class ActionGetRespAgreement(Action):
+        def name(self) -> Text:
+            return "action_get_resp_agreement"
+
+        def run(self, dispatcher: CollectingDispatcher,
+                tracker: Tracker,
+                domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+            input_data = tracker.latest_message
+            if "message" in input_data["metadata"].keys():
+                user_info = input_data["metadata"]["message"]["from"]
+            else:
+                user_info = input_data['metadata']['callback_query']['from']
+            intent = tracker.latest_message["intent"]['name']
+
+            agree_value = None
+            if intent =='affirm':
+                agree_value = 'True'
+            elif intent =='deny':
+                agree_value = 'False'
+
+            agree = tracker.get_slot('is_agree')
+            print(user_info, agree, agree_value)
+            return [SlotSet('is_agree', agree_value)]
+
+    class ActionAgreement(Action):
+        def name(self) -> Text:
+            return "action_get_agreement"
+
+        def run(self, dispatcher: CollectingDispatcher,
+                tracker: Tracker,
+                domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+           message = "Я погоджуюся на обробку моїх персональних даних та проінформований/на, що вони не будуть передаватися третім особам і будуть використовуватися тільки для координації волонтерської діяльності"
+           buttons = [
+                {"title": "Так", "payload": '/affirm{{"is_agree": "true"}}'},
+                {"title": "Hi", "payload": '/deny{{"is_agree": "false"}}'}
+            ]
+           dispatcher.utter_message(text=message, buttons=buttons)
+
+           # if today13am < now < today18pm:
+           #     message = 'Sorry, we are offline.'
+           #     service = 'offline'
+           #     # service=tracker.get_slot('online')
+           # else:
+           #     message = 'We are open. How can I help you?'
+           #     service = 'online'
+           #     # service=tracker.get_slot('offline')
+           #
+           # dispatcher.utter_message(message)
+           # return []
+           #return [SlotSet("service_time", service)]
+           return []
