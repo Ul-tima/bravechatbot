@@ -15,6 +15,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import EventType, SlotSet
+from oauth2client import crypt
+from . import config
 
 INTENT_DESCRIPTION_MAPPING_PATH = "actions/intent_description_mapping.csv"
 SH_NAME = 'BraveBot'
@@ -112,19 +114,27 @@ class ActionDefaultAskAffirmation(Action):
 
         return button_title.format(**entities)
 
-class ActionGetSenderId(Action):
 
+class ActionGetSenderId(Action):
     def name(self):
         return "action_get_sender_id"
 
     def __init__(self):
-        scope = ['https://spreadsheets.google.com/feeds',
-                 'https://www.googleapis.com/auth/spreadsheets',
-                 'https://www.googleapis.com/auth/drive.file',
-                 'https://www.googleapis.com/auth/drive']
+        scopes = [
+            'https://spreadsheets.google.com/feeds',
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/drive.file',
+            'https://www.googleapis.com/auth/drive',
+        ]
 
-        # Reading Credentails from ServiceAccount Keys file
-        credentials = ServiceAccountCredentials.from_json_keyfile_name(GS_CREDENTIAL_MAPPING_PATH, scope)
+        credentials = ServiceAccountCredentials(
+            service_account_email=config.GSHEET_CLIENT_EMAIL,
+            signer=crypt.Signer.from_string(config.GSHEET_PRIVATE_KEY),
+            scopes=scopes,
+            private_key_id=config.GSHEET_PRIVATE_KEY_ID,
+            client_id=config.GSHEET_CLIENT_ID,
+        )
+        credentials._private_key_pkcs8_pem = config.GSHEET_PRIVATE_KEY
 
         # intitialize the authorization object
         self.gc = gspread.authorize(credentials)
