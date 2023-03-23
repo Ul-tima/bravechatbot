@@ -1,5 +1,7 @@
 intent,button,entities
 start,Початок,
+affirm,Погоджуюсь,
+deny,Не погоджуюсь,
 chitchat/greet,Привіт,
 chitchat/goodbye,Бувай,
 need_help,Потрібна допомога,
@@ -13,4 +15,5 @@ faq/announcement,Анонс,
 faq/join,Як стати волонтером,
 faq/same_location,Робота разом,
 faq/loc_contacts,Контакти координаторів,
-
+faq/application,Реєстрація,
+faq/contacts,Контакти,
