@@ -1,7 +1,7 @@
 version: "3.1"
 
 stories:
-- story: ask agreement true
+- story: ask agreement
   steps:
   - intent: start
   - action: utter_start

@@ -66,6 +66,8 @@ class ActionDefaultAskAffirmation(Action):
         ]
         if "nlu_fallback" in first_intent_names:
             first_intent_names.remove("nlu_fallback")
+        if "out_of_scope" in first_intent_names:
+            first_intent_names.remove("out_of_scope")
         if len(first_intent_names) > 0:
 
             message_title = (
@@ -117,7 +119,7 @@ class ActionDefaultAskAffirmation(Action):
 
 class ActionGetSenderId(Action):
     def name(self):
-        return "action_get_sender_id"
+        return "action_save_info"
 
     def __init__(self):
         scopes = [
@@ -194,6 +196,8 @@ class ActionGetRespAgreement(Action):
             elif intent =='deny':
                 agree_value = False
                 message = 'Добре. Я не зберігатиму ваші дані.'
+            else:
+                message = 'Я не зберігатиму ваші дані.'
             dispatcher.utter_message(text=message)
             return [SlotSet('is_agree', agree_value)]
         else:
